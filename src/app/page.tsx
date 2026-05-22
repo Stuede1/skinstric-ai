@@ -59,12 +59,14 @@ export default function Home() {
           className="absolute left-0 top-1/2 -translate-y-1/2 h-[90vh] w-auto pointer-events-none"
         />
 
-        {/* Left arrow nav — positioned left */}
-        <img
-          src="/left.svg"
-          alt="Navigate left"
-          className="absolute left-16 top-1/2 -translate-y-1/2 w-[47px] h-[47px] cursor-pointer transition-all duration-300 hover:scale-110 hover:opacity-70"
-        />
+        {/* Left — Discover A.I. */}
+        <Link
+          href="/testing"
+          className="absolute left-16 top-1/2 -translate-y-1/2 flex items-center gap-3 cursor-pointer transition-all duration-300 hover:scale-105 hover:opacity-70"
+        >
+          <img src="/left.svg" alt="" className="w-[47px] h-[47px]" />
+          <span className="text-sm uppercase tracking-widest font-medium">Discover A.I.</span>
+        </Link>
 
         {/* Triangle line — right side */}
         <img
@@ -73,12 +75,14 @@ export default function Home() {
           className="absolute right-0 top-1/2 -translate-y-1/2 h-[90vh] w-auto pointer-events-none"
         />
 
-        {/* Right arrow nav — positioned right */}
-        <img
-          src="/right.svg"
-          alt="Navigate right"
-          className="absolute right-16 top-1/2 -translate-y-1/2 w-[47px] h-[47px] cursor-pointer transition-all duration-300 hover:scale-110 hover:opacity-70"
-        />
+        {/* Right — Take Test */}
+        <Link
+          href="/testing"
+          className="absolute right-16 top-1/2 -translate-y-1/2 flex items-center gap-3 cursor-pointer transition-all duration-300 hover:scale-105 hover:opacity-70"
+        >
+          <span className="text-sm uppercase tracking-widest font-medium">Take Test</span>
+          <img src="/right.svg" alt="" className="w-[47px] h-[47px]" />
+        </Link>
 
         {/* Rotating diamond */}
         <div
