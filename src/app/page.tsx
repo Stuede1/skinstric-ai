@@ -1,65 +1,136 @@
-import Image from "next/image";
+'use client'
+
+import { useEffect, useRef } from 'react'
+import Link from 'next/link'
+import gsap from 'gsap'
 
 export default function Home() {
+  const diamondRef = useRef<HTMLDivElement>(null)
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  const subtextRef = useRef<HTMLParagraphElement>(null)
+  const ctaRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+
+    tl.fromTo(
+      diamondRef.current,
+      { scale: 0, rotate: 45, opacity: 0 },
+      { scale: 1, rotate: 45, opacity: 1, duration: 1.2 }
+    )
+      .fromTo(
+        headingRef.current,
+        { y: 60, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8 },
+        '-=0.6'
+      )
+      .fromTo(
+        subtextRef.current,
+        { y: 40, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7 },
+        '-=0.4'
+      )
+      .fromTo(
+        ctaRef.current,
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6 },
+        '-=0.3'
+      )
+  }, [])
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="relative h-screen w-full flex flex-col">
+      {/* Header */}
+      <header className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-8 py-6">
+        <Link href="/" className="text-sm font-semibold tracking-widest uppercase">
+          Skinstric
+        </Link>
+        <span className="text-[11px] uppercase tracking-widest text-neutral-500">
+          Intro
+        </span>
+      </header>
+
+      {/* Main content */}
+      <main className="flex-1 flex items-center justify-center relative">
+        {/* Triangle line — left side */}
+        <img
+          src="/triangleL.svg"
+          alt=""
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-[90vh] w-auto pointer-events-none"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+
+        {/* Left arrow nav — positioned left */}
+        <img
+          src="/left.svg"
+          alt="Navigate left"
+          className="absolute left-16 top-1/2 -translate-y-1/2 w-[47px] h-[47px] cursor-pointer transition-all duration-300 hover:scale-110 hover:opacity-70"
+        />
+
+        {/* Triangle line — right side */}
+        <img
+          src="/triangleR.svg"
+          alt=""
+          className="absolute right-0 top-1/2 -translate-y-1/2 h-[90vh] w-auto pointer-events-none"
+        />
+
+        {/* Right arrow nav — positioned right */}
+        <img
+          src="/right.svg"
+          alt="Navigate right"
+          className="absolute right-16 top-1/2 -translate-y-1/2 w-[47px] h-[47px] cursor-pointer transition-all duration-300 hover:scale-110 hover:opacity-70"
+        />
+
+        {/* Rotating diamond */}
+        <div
+          ref={diamondRef}
+          className="absolute w-[320px] h-[320px] md:w-[420px] md:h-[420px] border border-neutral-300 opacity-0"
+          style={{ transform: 'rotate(45deg)' }}
+        >
+          <div className="absolute inset-4 border border-neutral-200" />
+          <div className="absolute inset-8 border border-neutral-100" />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        {/* Text content */}
+        <div className="relative z-10 text-center max-w-2xl px-6">
+          <h1
+            ref={headingRef}
+            className="text-5xl md:text-7xl font-light tracking-tight leading-[1.1] opacity-0"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            Sophisticated
+            <br />
+            <span className="font-normal">skincare</span>
+          </h1>
+          <p
+            ref={subtextRef}
+            className="mt-8 text-sm md:text-base text-neutral-500 max-w-md mx-auto leading-relaxed opacity-0"
           >
-            Documentation
-          </a>
+            Skinstric developed an A.I. that creates a highly-personalized
+            routine tailored to what your skin needs.
+          </p>
+          <div ref={ctaRef} className="mt-10 opacity-0">
+            <Link
+              href="/testing"
+              className="inline-flex items-center gap-2 border border-neutral-900 px-6 py-3 text-xs uppercase tracking-widest font-medium hover:bg-neutral-900 hover:text-white transition-colors duration-300"
+            >
+              Enter Experience
+            </Link>
+          </div>
         </div>
       </main>
+
+      {/* Bottom bar */}
+      <footer className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-8 py-6">
+        <p className="text-[11px] text-neutral-400 max-w-xs leading-relaxed">
+          Skinstric developed an A.I. that creates a highly-personalized routine
+          tailored to what your skin needs.
+        </p>
+        <Link
+          href="/testing"
+          className="text-[11px] uppercase tracking-widest font-medium flex items-center gap-2 hover:text-neutral-600 transition-colors"
+        >
+          Take Test <span>▶</span>
+        </Link>
+      </footer>
     </div>
-  );
+  )
 }
