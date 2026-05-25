@@ -1,13 +1,24 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import gsap from 'gsap'
 
 export default function Testing() {
   const diamond1Ref = useRef<HTMLDivElement>(null)
   const diamond2Ref = useRef<HTMLDivElement>(null)
   const diamond3Ref = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const proceedBtnRef = useRef<HTMLButtonElement>(null)
+  const router = useRouter()
+
+  const [step, setStep] = useState<'name' | 'location' | 'success'>('name')
+  const [name, setName] = useState('')
+  const [location, setLocation] = useState('')
+  const [isEditing, setIsEditing] = useState(false)
+  const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     // Outer — slowest
@@ -39,6 +50,111 @@ export default function Testing() {
     }
   }, [])
 
+  // Focus input when editing starts
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [isEditing, step])
+
+  const currentValue = step === 'name' ? name : location
+  const setCurrentValue = step === 'name' ? setName : setLocation
+
+  // Validation: only letters, spaces, hyphens, apostrophes allowed
+  const validate = (value: string): string | null => {
+    const trimmed = value.trim()
+    if (!trimmed) return 'This field is required'
+    if (/\d/.test(trimmed)) return 'Must not contain numbers'
+    if (!/^[a-zA-Z\s\-'.,]+$/.test(trimmed)) return 'Must only contain letters'
+    if (trimmed.length < 2) return 'Must be at least 2 characters'
+    return null
+  }
+
+  const handleProceed = async () => {
+    const validationError = validate(currentValue)
+    if (validationError) {
+      setError(validationError)
+      return
+    }
+    setError('')
+
+    if (step === 'name') {
+      // Move to location step
+      setStep('location')
+      setIsEditing(false)
+    } else {
+      // Both fields filled — submit to API
+      setIsSubmitting(true)
+      try {
+        const payload = { name: name.trim(), location: location.trim() }
+
+        // Store in localStorage
+        localStorage.setItem('skinstric_name', payload.name)
+        localStorage.setItem('skinstric_location', payload.location)
+
+        // POST to API
+        const res = await fetch(
+          'https://us-central1-api-skinstric-ai.cloudfunctions.net/skinstricPhaseOne',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          }
+        )
+
+        if (!res.ok) throw new Error('API request failed')
+
+        const data = await res.json()
+        console.log('API response:', data)
+
+        // Show success screen
+        setStep('success')
+      } catch (err) {
+        console.error('Submission error:', err)
+        setError('Something went wrong. Please try again.')
+      } finally {
+        setIsSubmitting(false)
+      }
+    }
+  }
+
+  // Animate proceed button sliding in on success
+  useEffect(() => {
+    if (step === 'success' && proceedBtnRef.current) {
+      gsap.fromTo(
+        proceedBtnRef.current,
+        { x: 100, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.6, ease: 'power2.out', delay: 0.3 }
+      )
+    }
+  }, [step])
+
+  const handleBack = () => {
+    setError('')
+    if (step === 'success') {
+      setStep('location')
+      setIsEditing(false)
+    } else if (step === 'location') {
+      setStep('name')
+      setIsEditing(false)
+    } else {
+      router.push('/')
+    }
+  }
+
+  const handleClick = () => {
+    setIsEditing(true)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleProceed()
+    }
+  }
+
+  const placeholderText = step === 'name' ? 'Introduce Yourself' : 'Where are you from?'
+  const subtitleText = step === 'name' ? 'To Start Analysis' : 'To Start Analysis'
+
   return (
     <div className="relative h-screen w-full flex flex-col">
       {/* Header */}
@@ -59,7 +175,7 @@ export default function Testing() {
 
       {/* Subtitle */}
       <p className="absolute top-14 left-6 text-[10px] uppercase tracking-widest font-medium">
-        To Start Analysis
+        {subtitleText}
       </p>
 
       {/* Main content */}
@@ -83,24 +199,90 @@ export default function Testing() {
           />
         </div>
 
-        {/* Center text */}
-        <div className="relative z-10 text-center">
-          <p className="text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
-            Click to type
-          </p>
-          <h1 className="text-3xl md:text-5xl font-medium text-neutral-400 border-b border-neutral-300 pb-2">
-            Introduce Yourself
-          </h1>
-        </div>
+        {/* Center text / input */}
+        {step === 'success' ? (
+          <div className="relative z-10 text-center">
+            <p className="text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
+              Thank you
+            </p>
+            <h1 className="text-3xl md:text-5xl font-medium text-neutral-800">
+              {name}
+            </h1>
+            <p className="mt-2 text-lg text-neutral-400">
+              from {location}
+            </p>
+            <p className="mt-6 text-sm uppercase tracking-widest text-neutral-500">
+              Proceed for the next step
+            </p>
+          </div>
+        ) : (
+          <div className="relative z-10 text-center" onClick={handleClick}>
+            <p className="text-[10px] uppercase tracking-widest text-neutral-400 mb-2">
+              Click to type
+            </p>
+
+            {isEditing ? (
+              <div className="border-b border-neutral-300 pb-2">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={currentValue}
+                  onChange={(e) => {
+                    setCurrentValue(e.target.value)
+                    setError('')
+                  }}
+                  onKeyDown={handleKeyDown}
+                  placeholder={placeholderText}
+                  className="text-3xl md:text-5xl font-medium text-neutral-800 bg-transparent outline-none text-center placeholder:text-neutral-300 w-full min-w-[300px] md:min-w-[400px]"
+                />
+              </div>
+            ) : (
+              <h1 className="text-3xl md:text-5xl font-medium text-neutral-400 border-b border-neutral-300 pb-2 cursor-pointer">
+                {currentValue || placeholderText}
+              </h1>
+            )}
+
+            {error && (
+              <p className="mt-3 text-xs text-red-500 uppercase tracking-widest">{error}</p>
+            )}
+          </div>
+        )}
       </main>
 
       {/* Back button — bottom left */}
-      <div className="absolute bottom-6 left-6 flex items-center gap-3">
-        <Link href="/" className="flex items-center gap-3">
-          <img src="/left.svg" alt="" className="w-[35px] h-[35px]" />
+      <div className="absolute bottom-6 left-6">
+        <button onClick={handleBack} className="flex items-center gap-3 cursor-pointer">
+          <img src="/left.svg" alt="" className="w-[47px] h-[47px]" />
           <span className="text-[10px] uppercase tracking-widest font-medium">Back</span>
-        </Link>
+        </button>
       </div>
+
+      {/* Proceed button — bottom right */}
+      {step === 'success' ? (
+        <div className="absolute bottom-6 right-6">
+          <button
+            ref={proceedBtnRef}
+            onClick={() => router.push('/results')}
+            className="flex items-center gap-3 cursor-pointer opacity-0"
+          >
+            <span className="text-[10px] uppercase tracking-widest font-medium">Proceed</span>
+            <img src="/right.svg" alt="" className="w-[47px] h-[47px]" />
+          </button>
+        </div>
+      ) : (
+        <div className="absolute bottom-6 right-6">
+          <button
+            onClick={handleProceed}
+            disabled={isSubmitting}
+            className="flex items-center gap-3 cursor-pointer disabled:opacity-50"
+          >
+            <span className="text-[10px] uppercase tracking-widest font-medium">
+              {isSubmitting ? 'Submitting...' : 'Proceed'}
+            </span>
+            <img src="/right.svg" alt="" className="w-[47px] h-[47px]" />
+          </button>
+        </div>
+      )}
     </div>
   )
 }
