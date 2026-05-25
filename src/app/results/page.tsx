@@ -4,6 +4,8 @@ import { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import gsap from 'gsap'
 
+//results page
+
 export default function Results() {
   // Left card spinning squares
   const leftSq1 = useRef<HTMLDivElement>(null)
