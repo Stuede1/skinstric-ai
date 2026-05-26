@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import gsap from 'gsap'
+import { Aperture, Image } from 'lucide-react'
 
 //results page
 
@@ -106,28 +107,19 @@ export default function Results() {
 
               {/* Icon */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-[70px] h-[70px] md:w-[90px] md:h-[90px] rounded-full border-2 border-neutral-900 flex items-center justify-center">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="3" />
-                    <path d="M12 2 L12 4" />
-                    <path d="M12 20 L12 22" />
-                    <path d="M2 12 L4 12" />
-                    <path d="M20 12 L22 12" />
-                    <path d="M4.93 4.93 L6.34 6.34" />
-                    <path d="M17.66 17.66 L19.07 19.07" />
-                    <path d="M4.93 19.07 L6.34 17.66" />
-                    <path d="M17.66 6.34 L19.07 4.93" />
-                  </svg>
+                <div className="w-[90px] h-[90px] md:w-[120px] md:h-[120px] rounded-full border-2 border-neutral-900 flex items-center justify-center">
+                  <Aperture size={100} strokeWidth={1.5} />
                 </div>
               </div>
 
               {/* Label with line */}
-              <div className="absolute top-[25%] right-[-20px] flex items-start gap-2">
-                <div className="w-[1px] h-[30px] bg-neutral-400 rotate-[-30deg] origin-top" />
-                <div className="text-left -mt-1">
-                  <p className="text-[9px] uppercase tracking-widest text-neutral-500">Allow A.I.</p>
-                  <p className="text-[9px] uppercase tracking-widest font-medium">To Scan Your Face</p>
-                </div>
+              <svg className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-visible" style={{ zIndex: 5 }}>
+                <line x1="54%" y1="35%" x2="75%" y2="18%" stroke="#000" strokeWidth="1" />
+                <circle cx="75%" cy="18%" r="3" fill="#000" />
+              </svg>
+              <div className="absolute top-[12%] right-[-30px] text-left" style={{ zIndex: 6 }}>
+                <p className="text-[9px] uppercase tracking-widest text-neutral-500">Allow A.I.</p>
+                <p className="text-[9px] uppercase tracking-widest font-medium">To Scan Your Face</p>
               </div>
             </div>
           </div>
@@ -154,21 +146,19 @@ export default function Results() {
 
               {/* Icon */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-[70px] h-[70px] md:w-[90px] md:h-[90px] rounded-full border-2 border-neutral-900 flex items-center justify-center">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="4" fill="currentColor" />
-                    <path d="M5 17.5 C5 14 8 12 12 15 C16 12 19 14 19 17.5" />
-                  </svg>
+                <div className="w-[90px] h-[90px] md:w-[120px] md:h-[120px] rounded-full border-2 border-neutral-900 flex items-center justify-center">
+                  <Image size={100} strokeWidth={1.5} />
                 </div>
               </div>
 
               {/* Label with line */}
-              <div className="absolute bottom-[25%] left-[-20px] flex items-end gap-2">
-                <div className="text-right -mb-1">
-                  <p className="text-[9px] uppercase tracking-widest text-neutral-500">Allow A.I.</p>
-                  <p className="text-[9px] uppercase tracking-widest font-medium">Access Gallery</p>
-                </div>
-                <div className="w-[1px] h-[30px] bg-neutral-400 rotate-[30deg] origin-bottom" />
+              <svg className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-visible" style={{ zIndex: 5 }}>
+                <line x1="46%" y1="65%" x2="25%" y2="82%" stroke="#000" strokeWidth="1" />
+                <circle cx="25%" cy="82%" r="3" fill="#000" />
+              </svg>
+              <div className="absolute bottom-[12%] left-[-80px] text-right" style={{ zIndex: 6 }}>
+                <p className="text-[9px] uppercase tracking-widest text-neutral-500">Allow A.I.</p>
+                <p className="text-[9px] uppercase tracking-widest font-medium">Access Gallery</p>
               </div>
             </div>
           </div>
