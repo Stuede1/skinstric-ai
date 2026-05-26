@@ -1,13 +1,52 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import gsap from 'gsap'
 import { Aperture, Image } from 'lucide-react'
 
 //results page
 
 export default function Results() {
+  const router = useRouter()
+  const [showModal, setShowModal] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const [isUploading, setIsUploading] = useState(false)
+
+  const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onloadend = async () => {
+      const imageData = reader.result as string
+      localStorage.setItem('skinstric_capture', imageData)
+
+      const base64String = imageData.split(',')[1]
+      setIsUploading(true)
+      try {
+        const res = await fetch(
+          'https://us-central1-api-skinstric-ai.cloudfunctions.net/skinstricPhaseTwo',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: base64String }),
+          }
+        )
+        const data = await res.json()
+        console.log('Phase Two API response:', data)
+        localStorage.setItem('skinstric_analysis', JSON.stringify(data))
+        router.push('/select')
+      } catch (err) {
+        console.error('Phase Two API error:', err)
+        setIsUploading(false)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
   // Left card spinning squares
   const leftSq1 = useRef<HTMLDivElement>(null)
   const leftSq2 = useRef<HTMLDivElement>(null)
@@ -86,7 +125,7 @@ export default function Results() {
       <main className="flex-1 flex items-center justify-center relative">
         <div className="flex flex-col md:flex-row items-center gap-20 md:gap-96">
           {/* Left card — Scan Face */}
-          <div className="relative flex flex-col items-center">
+          <div className="relative flex flex-col items-center cursor-pointer" onClick={() => setShowModal(true)}>
             {/* Spinning dotted squares */}
             <div className="relative w-[280px] h-[280px] md:w-[380px] md:h-[380px]">
               <div
@@ -125,7 +164,7 @@ export default function Results() {
           </div>
 
           {/* Right card — Access Gallery */}
-          <div className="relative flex flex-col items-center">
+          <div className="relative flex flex-col items-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
             {/* Spinning dotted squares */}
             <div className="relative w-[280px] h-[280px] md:w-[380px] md:h-[380px]">
               <div
@@ -164,6 +203,45 @@ export default function Results() {
           </div>
         </div>
       </main>
+
+      {/* Hidden file input for gallery upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleGalleryUpload}
+        className="hidden"
+      />
+
+      {/* Camera permission modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-neutral-900 text-white w-[420px]">
+            <div className="px-8 py-8">
+              <h2 className="text-lg font-bold uppercase tracking-wide">
+                Allow A.I. To Access Your Camera
+              </h2>
+            </div>
+            <div className="border-t border-neutral-700 flex">
+              <button
+                onClick={() => setShowModal(false)}
+                className="flex-1 py-4 text-sm uppercase tracking-widest text-neutral-400 hover:text-white transition-colors cursor-pointer"
+              >
+                Deny
+              </button>
+              <button
+                onClick={() => {
+                  setShowModal(false)
+                  router.push('/camera')
+                }}
+                className="flex-1 py-4 text-sm uppercase tracking-widest font-bold hover:text-neutral-300 transition-colors cursor-pointer"
+              >
+                Allow
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Back button — bottom left */}
       <div className="absolute bottom-6 left-6">
