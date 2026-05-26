@@ -9,5 +9,5 @@ body {
   background: #ffffff;
   color: #1a1a1a;
   font-family: var(--font-sans), sans-serif;
-  overflow: hidden;
+  overflow: auto;
 }

@@ -42,7 +42,7 @@ export default function Select() {
           <div className="absolute inset-0" style={{ transform: 'rotate(45deg)' }}>
             {/* Top — Demographics */}
             <button
-              onClick={() => router.push('/select/demographics')}
+              onClick={() => router.push('/summary')}
               className="absolute top-0 left-1/2 -translate-x-1/2 w-[200px] h-[200px] bg-neutral-100 hover:bg-neutral-200 transition-colors cursor-pointer flex items-center justify-center"
             >
               <span

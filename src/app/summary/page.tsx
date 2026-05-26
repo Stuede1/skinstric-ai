@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+
+type Category = 'race' | 'age' | 'gender'
 
 interface AnalysisData {
   race: Record<string, number>
@@ -16,28 +19,40 @@ function capitalize(s: string) {
     .join(' ')
 }
 
-function getTop(obj: Record<string, number>) {
-  return Object.entries(obj).sort(([, a], [, b]) => b - a)[0]
+function sortedEntries(obj: Record<string, number>) {
+  return Object.entries(obj).sort(([, a], [, b]) => b - a)
 }
 
 export default function Summary() {
+  const router = useRouter()
   const [data, setData] = useState<AnalysisData | null>(null)
-  const [name, setName] = useState('')
-  const [location, setLocation] = useState('')
+  const [activeCategory, setActiveCategory] = useState<Category>('race')
+  const [selectedValues, setSelectedValues] = useState<Record<Category, string>>({
+    race: '',
+    age: '',
+    gender: '',
+  })
 
   useEffect(() => {
     const stored = localStorage.getItem('skinstric_analysis')
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored)
-        setData(parsed.data as AnalysisData)
-      } catch {
-        /* ignore */
-      }
+    if (!stored) {
+      router.push('/select')
+      return
     }
-    setName(localStorage.getItem('skinstric_name') || 'User')
-    setLocation(localStorage.getItem('skinstric_location') || 'Unknown')
-  }, [])
+    try {
+      const parsed = JSON.parse(stored)
+      const analysisData = parsed.data as AnalysisData
+      setData(analysisData)
+
+      setSelectedValues({
+        race: sortedEntries(analysisData.race)[0][0],
+        age: sortedEntries(analysisData.age)[0][0],
+        gender: sortedEntries(analysisData.gender)[0][0],
+      })
+    } catch {
+      router.push('/select')
+    }
+  }, [router])
 
   if (!data) {
     return (
@@ -47,14 +62,31 @@ export default function Summary() {
     )
   }
 
-  const [topRace, raceScore] = getTop(data.race)
-  const [topAge, ageScore] = getTop(data.age)
-  const [topGender, genderScore] = getTop(data.gender)
+  const categoryData = data[activeCategory]
+  const sorted = sortedEntries(categoryData)
+  const topValue = selectedValues[activeCategory]
+  const topScore = categoryData[topValue] ?? sorted[0][1]
+  const topPercent = Math.round(topScore * 100)
+
+  const categoryLabels: Record<Category, string> = {
+    race: 'Race',
+    age: 'Age',
+    gender: 'Sex',
+  }
+
+  const handleClickScore = (key: string) => {
+    setSelectedValues((prev) => ({ ...prev, [activeCategory]: key }))
+  }
+
+  // Donut chart SVG params
+  const radius = 120
+  const circumference = 2 * Math.PI * radius
+  const strokeDashoffset = circumference - (topScore * circumference)
 
   return (
-    <div className="relative h-screen w-full flex flex-col">
+    <div className="min-h-screen w-full flex flex-col">
       {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-3">
+      <header className="sticky top-0 z-10 flex items-center justify-between px-6 py-3 bg-white">
         <div className="flex items-center gap-3">
           <Link href="/" className="text-[10px] font-bold tracking-widest uppercase">
             Skinstric
@@ -70,121 +102,113 @@ export default function Summary() {
       </header>
 
       {/* Title area */}
-      <div className="absolute top-14 left-6">
-        <p className="text-[9px] uppercase tracking-widest text-neutral-500">A.I. Analysis</p>
-        <h1 className="text-4xl md:text-5xl font-bold uppercase tracking-tight mt-1">
-          Summary
+      <div className="pt-4 px-6">
+        <p className="text-xs uppercase tracking-widest text-neutral-500">A.I. Analysis</p>
+        <h1 className="text-4xl md:text-6xl font-normal uppercase tracking-tight mt-1">
+          Demographics
         </h1>
+        <p className="text-xs uppercase tracking-widest text-neutral-400 mt-1">
+          Predicted Race & Age
+        </p>
       </div>
 
       {/* Main content */}
-      <main className="flex-1 flex items-center justify-center px-6 pt-32">
-        <div className="w-full max-w-3xl">
-          {/* User info */}
-          <div className="mb-10 border-b border-neutral-200 pb-6">
-            <h2 className="text-2xl font-bold">{name}</h2>
-            <p className="text-sm text-neutral-400 mt-1">from {location}</p>
+      <main className="flex-1 flex flex-col px-6 py-6">
+        <div className="flex-1 flex flex-col md:flex-row w-full gap-6 md:gap-0">
+          {/* Left sidebar — category selectors */}
+          <div className="flex flex-col w-full md:w-[220px] shrink-0 self-start border-l-2 border-neutral-200">
+            {(['race', 'age', 'gender'] as Category[]).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`text-left px-5 py-4 cursor-pointer transition-colors border-l-2 -ml-[2px] ${
+                  activeCategory === cat
+                    ? 'bg-neutral-900 text-white border-neutral-900'
+                    : 'bg-white text-neutral-900 border-transparent hover:bg-neutral-50'
+                }`}
+              >
+                <p className="text-sm font-bold">{capitalize(selectedValues[cat])}</p>
+                <p className="text-[9px] uppercase tracking-widest mt-0.5 opacity-60">
+                  {categoryLabels[cat]}
+                </p>
+              </button>
+            ))}
           </div>
 
-          {/* Results grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Race */}
-            <div className="border border-neutral-200 p-6">
-              <p className="text-[9px] uppercase tracking-widest text-neutral-400 mb-2">Race</p>
-              <p className="text-xl font-bold">{capitalize(topRace)}</p>
-              <p className="text-3xl font-medium mt-2">{(raceScore * 100).toFixed(2)}%</p>
-              <div className="mt-3 w-full bg-neutral-100 h-2 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-neutral-900 rounded-full transition-all"
-                  style={{ width: `${raceScore * 100}%` }}
-                />
-              </div>
-            </div>
+          {/* Center — label + donut chart */}
+          <div className="flex-1 flex flex-col md:flex-row items-stretch">
+            {/* Selected value label */}
+            <p className="text-4xl md:text-6xl font-normal pl-4 md:pl-8 pt-2 w-full md:w-[340px] shrink-0 leading-tight">
+              {capitalize(topValue)}
+            </p>
 
-            {/* Age */}
-            <div className="border border-neutral-200 p-6">
-              <p className="text-[9px] uppercase tracking-widest text-neutral-400 mb-2">Age</p>
-              <p className="text-xl font-bold">{topAge}</p>
-              <p className="text-3xl font-medium mt-2">{(ageScore * 100).toFixed(2)}%</p>
-              <div className="mt-3 w-full bg-neutral-100 h-2 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-neutral-900 rounded-full transition-all"
-                  style={{ width: `${ageScore * 100}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Gender */}
-            <div className="border border-neutral-200 p-6">
-              <p className="text-[9px] uppercase tracking-widest text-neutral-400 mb-2">Sex</p>
-              <p className="text-xl font-bold">{capitalize(topGender)}</p>
-              <p className="text-3xl font-medium mt-2">{(genderScore * 100).toFixed(2)}%</p>
-              <div className="mt-3 w-full bg-neutral-100 h-2 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-neutral-900 rounded-full transition-all"
-                  style={{ width: `${genderScore * 100}%` }}
-                />
+            {/* Donut chart */}
+            <div className="flex-1 flex items-center justify-center">
+              <div className="relative w-[280px] h-[280px] md:w-[440px] md:h-[440px]">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 280 280">
+                  <circle
+                    cx="140"
+                    cy="140"
+                    r={radius}
+                    fill="none"
+                    stroke="#e5e5e5"
+                    strokeWidth="6"
+                  />
+                  <circle
+                    cx="140"
+                    cy="140"
+                    r={radius}
+                    fill="none"
+                    stroke="#171717"
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    className="transition-all duration-500"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-5xl md:text-6xl font-normal text-neutral-600">{topPercent}%</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* All scores */}
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Race breakdown */}
-            <div>
-              <p className="text-[9px] uppercase tracking-widest font-medium border-b border-neutral-200 pb-2 mb-2">
-                Race Breakdown
-              </p>
-              {Object.entries(data.race)
-                .sort(([, a], [, b]) => b - a)
-                .map(([key, val]) => (
-                  <div key={key} className="flex justify-between py-1.5">
-                    <span className="text-sm">{capitalize(key)}</span>
-                    <span className="text-sm">{(val * 100).toFixed(2)}%</span>
-                  </div>
-                ))}
+          {/* Right — scores table */}
+          <div className="w-full md:w-[300px] shrink-0 self-start">
+            <div className="flex justify-between border-b border-neutral-200 pb-2 mb-1">
+              <span className="text-[10px] uppercase tracking-widest font-medium text-neutral-500">
+                {categoryLabels[activeCategory]}
+              </span>
+              <span className="text-[10px] uppercase tracking-widest font-medium text-neutral-500">
+                A.I. Confidence
+              </span>
             </div>
-
-            {/* Age breakdown */}
-            <div>
-              <p className="text-[9px] uppercase tracking-widest font-medium border-b border-neutral-200 pb-2 mb-2">
-                Age Breakdown
-              </p>
-              {Object.entries(data.age)
-                .sort(([, a], [, b]) => b - a)
-                .map(([key, val]) => (
-                  <div key={key} className="flex justify-between py-1.5">
-                    <span className="text-sm">{key}</span>
-                    <span className="text-sm">{(val * 100).toFixed(2)}%</span>
+            {sorted.map(([key, value]) => {
+              const isSelected = key === topValue
+              const percent = Math.round(value * 100)
+              return (
+                <button
+                  key={key}
+                  onClick={() => handleClickScore(key)}
+                  className={`w-full flex justify-between items-center py-2 px-3 cursor-pointer transition-colors ${
+                    isSelected
+                      ? 'bg-neutral-900 text-white'
+                      : 'hover:bg-neutral-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs ${isSelected ? 'text-white' : 'text-neutral-300'}`}>◆</span>
+                    <span className="text-[15px]">{capitalize(key)}</span>
                   </div>
-                ))}
-            </div>
-
-            {/* Gender breakdown */}
-            <div>
-              <p className="text-[9px] uppercase tracking-widest font-medium border-b border-neutral-200 pb-2 mb-2">
-                Gender Breakdown
-              </p>
-              {Object.entries(data.gender)
-                .sort(([, a], [, b]) => b - a)
-                .map(([key, val]) => (
-                  <div key={key} className="flex justify-between py-1.5">
-                    <span className="text-sm">{capitalize(key)}</span>
-                    <span className="text-sm">{(val * 100).toFixed(2)}%</span>
-                  </div>
-                ))}
-            </div>
+                  <span className="text-[15px]">{percent}%</span>
+                </button>
+              )
+            })}
           </div>
         </div>
       </main>
 
-      {/* Back button — bottom left */}
-      <div className="absolute bottom-6 left-6">
-        <Link href="/select" className="flex items-center gap-3">
-          <img src="/left.svg" alt="" className="w-[47px] h-[47px]" />
-          <span className="text-[10px] uppercase tracking-widest font-medium">Back</span>
-        </Link>
-      </div>
     </div>
   )
 }
