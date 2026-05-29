@@ -93,12 +93,9 @@ export default function Home() {
           </Link>
           <span className="text-[8px] uppercase tracking-widest text-neutral-500">[ Intro ]</span>
         </div>
-        <Link
-          href="/testing"
-          className="bg-neutral-900 text-white text-[8px] uppercase tracking-widest font-medium px-3 py-1.5 hover:bg-neutral-700 transition-colors duration-300"
-        >
+        <span className="bg-neutral-900 text-white text-[8px] uppercase tracking-widest font-medium px-3 py-1.5">
           Enter Code
-        </Link>
+        </span>
       </header>
 
       {/* Main content */}

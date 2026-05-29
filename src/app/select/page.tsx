@@ -1,10 +1,18 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 export default function Select() {
   const router = useRouter()
+  const [hovered, setHovered] = useState<string | null>(null)
+
+  const handleClick = (item: string) => {
+    if (item === 'demographics') {
+      router.push('/summary')
+    }
+  }
 
   return (
     <div className="relative h-screen w-full flex flex-col">
@@ -16,79 +24,101 @@ export default function Select() {
           </Link>
           <span className="text-[8px] uppercase tracking-widest text-neutral-500">[ Intro ]</span>
         </div>
-        <Link
-          href="/testing"
-          className="bg-neutral-900 text-white text-[8px] uppercase tracking-widest font-medium px-3 py-1.5 hover:bg-neutral-700 transition-colors duration-300"
-        >
+        <span className="bg-neutral-900 text-white text-[8px] uppercase tracking-widest font-medium px-3 py-1.5">
           Enter Code
-        </Link>
+        </span>
       </header>
 
       {/* Subtitle */}
-      <div className="absolute top-14 left-6">
-        <h1 className="text-lg font-bold uppercase tracking-wide">A.I. Analysis</h1>
-        <p className="text-[9px] uppercase tracking-widest text-neutral-500 mt-1">
+      <div className="absolute top-14 left-6 select-text">
+        <h1 className="text-sm font-bold uppercase tracking-widest">A.I. Analysis</h1>
+        <p className="text-xs uppercase tracking-widest text-neutral-700 mt-1">
           A.I. has estimated the following.
         </p>
-        <p className="text-[9px] uppercase tracking-widest text-neutral-500">
+        <p className="text-xs uppercase tracking-widest text-neutral-700">
           Fix estimated information if needed.
         </p>
       </div>
 
       {/* Main content — diamond layout */}
       <main className="flex-1 flex items-center justify-center relative">
-        <div className="relative w-[420px] h-[420px]">
-          {/* Diamond container rotated 45deg */}
-          <div className="absolute inset-0" style={{ transform: 'rotate(45deg)' }}>
-            {/* Top — Demographics */}
-            <button
-              onClick={() => router.push('/summary')}
-              className="absolute top-0 left-1/2 -translate-x-1/2 w-[200px] h-[200px] bg-neutral-100 hover:bg-neutral-200 transition-colors cursor-pointer flex items-center justify-center"
-            >
-              <span
-                className="text-[10px] uppercase tracking-widest font-medium text-neutral-700"
-                style={{ transform: 'rotate(-45deg)' }}
-              >
-                Demographics
-              </span>
-            </button>
+        {/* Dotted diamond outline — expands outward on hover */}
+        <div
+          className={`absolute border-[3px] border-dotted border-neutral-300 transition-all duration-500 ease-out ${
+            hovered ? 'w-[520px] h-[520px] opacity-100' : 'w-[340px] h-[340px] opacity-0'
+          }`}
+          style={{ transform: 'rotate(45deg)' }}
+        />
 
-            {/* Left — Cosmetic Concerns */}
-            <button
-              className="absolute top-1/2 left-0 -translate-y-1/2 w-[200px] h-[200px] bg-neutral-50 hover:bg-neutral-100 transition-colors cursor-pointer flex items-center justify-center"
+        {/* 2x2 grid rotated 45deg to form diamond */}
+        <div
+          className="grid grid-cols-2 gap-[4px] w-[340px] h-[340px]"
+          style={{ transform: 'rotate(45deg)' }}
+        >
+          {/* Top-left cell → becomes top-left visually → Demographics (top) */}
+          <button
+            onClick={() => handleClick('demographics')}
+            onMouseEnter={() => setHovered('demographics')}
+            onMouseLeave={() => setHovered(null)}
+            className={`w-full h-full transition-colors cursor-pointer flex items-center justify-center ${
+              hovered === 'demographics' ? 'bg-neutral-300' : 'bg-neutral-200'
+            }`}
+          >
+            <span
+              className="text-[13px] uppercase tracking-widest font-bold text-neutral-800"
+              style={{ transform: 'rotate(-45deg)' }}
             >
-              <span
-                className="text-[10px] uppercase tracking-widest font-medium text-neutral-700 text-center leading-5"
-                style={{ transform: 'rotate(-45deg)' }}
-              >
-                Cosmetic<br />Concerns
-              </span>
-            </button>
+              Demographics
+            </span>
+          </button>
 
-            {/* Right — Skin Type Details */}
-            <button
-              className="absolute top-1/2 right-0 -translate-y-1/2 w-[200px] h-[200px] bg-neutral-50 hover:bg-neutral-100 transition-colors cursor-pointer flex items-center justify-center"
+          {/* Top-right cell → becomes right visually → Skin Type Details */}
+          <button
+            onMouseEnter={() => setHovered('skintype')}
+            onMouseLeave={() => setHovered(null)}
+            className={`w-full h-full transition-colors cursor-not-allowed flex items-center justify-center ${
+              hovered === 'skintype' ? 'bg-neutral-200' : 'bg-neutral-100'
+            }`}
+          >
+            <span
+              className="text-[13px] uppercase tracking-widest font-bold text-neutral-800 text-center leading-6"
+              style={{ transform: 'rotate(-45deg)' }}
             >
-              <span
-                className="text-[10px] uppercase tracking-widest font-medium text-neutral-700 text-center leading-5"
-                style={{ transform: 'rotate(-45deg)' }}
-              >
-                Skin Type<br />Details
-              </span>
-            </button>
+              Skin Type Details
+            </span>
+          </button>
 
-            {/* Bottom — Weather */}
-            <button
-              className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[200px] h-[200px] bg-neutral-50 hover:bg-neutral-100 transition-colors cursor-pointer flex items-center justify-center"
+          {/* Bottom-left cell → becomes left visually → Cosmetic Concerns */}
+          <button
+            onMouseEnter={() => setHovered('cosmetic')}
+            onMouseLeave={() => setHovered(null)}
+            className={`w-full h-full transition-colors cursor-not-allowed flex items-center justify-center ${
+              hovered === 'cosmetic' ? 'bg-neutral-200' : 'bg-neutral-100'
+            }`}
+          >
+            <span
+              className="text-[13px] uppercase tracking-widest font-bold text-neutral-800 text-center leading-6"
+              style={{ transform: 'rotate(-45deg)' }}
             >
-              <span
-                className="text-[10px] uppercase tracking-widest font-medium text-neutral-700"
-                style={{ transform: 'rotate(-45deg)' }}
-              >
-                Weather
-              </span>
-            </button>
-          </div>
+              Cosmetic<br />Concerns
+            </span>
+          </button>
+
+          {/* Bottom-right cell → becomes bottom visually → Weather */}
+          <button
+            onMouseEnter={() => setHovered('weather')}
+            onMouseLeave={() => setHovered(null)}
+            className={`w-full h-full transition-colors cursor-not-allowed flex items-center justify-center ${
+              hovered === 'weather' ? 'bg-neutral-200' : 'bg-neutral-100'
+            }`}
+          >
+            <span
+              className="text-[13px] uppercase tracking-widest font-bold text-neutral-800"
+              style={{ transform: 'rotate(-45deg)' }}
+            >
+              Weather
+            </span>
+          </button>
         </div>
       </main>
 

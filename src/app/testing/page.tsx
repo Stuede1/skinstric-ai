@@ -81,7 +81,7 @@ export default function Testing() {
     if (step === 'name') {
       // Move to location step
       setStep('location')
-      setIsEditing(false)
+      setIsEditing(true)
     } else {
       // Both fields filled — submit to API
       setIsSubmitting(true)
@@ -165,12 +165,9 @@ export default function Testing() {
           </Link>
           <span className="text-[8px] uppercase tracking-widest text-neutral-500">[ Intro ]</span>
         </div>
-        <Link
-          href="/testing"
-          className="bg-neutral-900 text-white text-[8px] uppercase tracking-widest font-medium px-3 py-1.5 hover:bg-neutral-700 transition-colors duration-300"
-        >
+        <span className="bg-neutral-900 text-white text-[8px] uppercase tracking-widest font-medium px-3 py-1.5">
           Enter Code
-        </Link>
+        </span>
       </header>
 
       {/* Subtitle */}

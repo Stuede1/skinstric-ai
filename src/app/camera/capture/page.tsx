@@ -145,12 +145,9 @@ export default function CameraCapture() {
           </Link>
           <span className="text-[8px] uppercase tracking-widest text-neutral-300">[ Intro ]</span>
         </div>
-        <Link
-          href="/testing"
-          className="bg-white text-neutral-900 text-[8px] uppercase tracking-widest font-medium px-3 py-1.5 hover:bg-neutral-200 transition-colors duration-300"
-        >
+        <span className="bg-white text-neutral-900 text-[8px] uppercase tracking-widest font-medium px-3 py-1.5">
           Enter Code
-        </Link>
+        </span>
       </header>
 
       {/* Camera feed */}
