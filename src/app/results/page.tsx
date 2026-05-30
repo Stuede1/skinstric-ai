@@ -6,14 +6,10 @@ import { useRouter } from 'next/navigation'
 import gsap from 'gsap'
 import { Aperture, Image } from 'lucide-react'
 
-//results page
-
 export default function Results() {
   const router = useRouter()
   const [showModal, setShowModal] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const [isUploading, setIsUploading] = useState(false)
 
   const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -25,7 +21,6 @@ export default function Results() {
       localStorage.setItem('skinstric_capture', imageData)
 
       const base64String = imageData.split(',')[1]
-      setIsUploading(true)
       try {
         const res = await fetch(
           'https://us-central1-api-skinstric-ai.cloudfunctions.net/skinstricPhaseTwo',
@@ -36,12 +31,11 @@ export default function Results() {
           }
         )
         const data = await res.json()
-        console.log('Phase Two API response:', data)
+        console.log('Full API Response:', data)
         localStorage.setItem('skinstric_analysis', JSON.stringify(data))
         router.push('/select')
       } catch (err) {
         console.error('Phase Two API error:', err)
-        setIsUploading(false)
       }
     }
     reader.readAsDataURL(file)

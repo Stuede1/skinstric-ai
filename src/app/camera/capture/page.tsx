@@ -18,21 +18,16 @@ export default function CameraCapture() {
     let currentStream: MediaStream | null = null
 
     const startCamera = async () => {
-      console.log('Requesting camera access...')
       try {
         currentStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'user', width: 1280, height: 720 },
         })
-        console.log('Camera access granted')
         setStream(currentStream)
 
         if (videoRef.current) {
           videoRef.current.srcObject = currentStream
           videoRef.current.onloadedmetadata = () => {
-            console.log('Video metadata loaded, starting playback')
-            videoRef.current?.play().then(() => {
-              console.log('Video playback started')
-            })
+            videoRef.current?.play()
             setCameraReady(true)
           }
         }
@@ -63,16 +58,13 @@ export default function CameraCapture() {
     if (!ctx) return
 
     ctx.drawImage(video, 0, 0)
-    console.log(`Capturing from video: ${video.videoWidth}x${video.videoHeight}`)
     const imageData = canvas.toDataURL('image/png')
-    console.log(`Captured image data URL length: ${imageData.length}`)
 
     setCapturedImage(imageData)
   }
 
   const handleRetake = async () => {
     setCapturedImage(null)
-    console.log('Retaking photo, restarting camera...')
     try {
       const newStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user', width: 1280, height: 720 },
@@ -91,22 +83,16 @@ export default function CameraCapture() {
 
     // Stop camera
     if (stream) {
-      stream.getTracks().forEach((track) => {
-        console.log(`Stopping track: ${track.kind}`)
-        track.stop()
-      })
+      stream.getTracks().forEach((track) => track.stop())
     }
 
     // Store captured image in localStorage
     localStorage.setItem('skinstric_capture', capturedImage)
-    console.log('Image stored in localStorage')
 
     // Extract base64 string (remove data:image/png;base64, prefix)
     const base64String = capturedImage.split(',')[1]
-    console.log(`API data length: ${base64String.length}`)
 
     setIsProcessing(true)
-    console.log('Sending API request...')
     try {
       const res = await fetch(
         'https://us-central1-api-skinstric-ai.cloudfunctions.net/skinstricPhaseTwo',
@@ -116,11 +102,9 @@ export default function CameraCapture() {
           body: JSON.stringify({ image: base64String }),
         }
       )
-      console.log(`API response status: ${res.status}`)
       const data = await res.json()
-      console.log('API response:', data)
+      console.log('Full API Response:', data)
       localStorage.setItem('skinstric_analysis', JSON.stringify(data))
-      console.log('Demographic data stored, redirecting to summary')
       router.push('/select')
     } catch (err) {
       console.error('Phase Two API error:', err)

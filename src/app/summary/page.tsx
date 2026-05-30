@@ -205,7 +205,6 @@ export default function Summary() {
           </div>
         </div>
       </main>
-
     </div>
   )
 }

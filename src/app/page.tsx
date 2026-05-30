@@ -4,8 +4,6 @@ import { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import gsap from 'gsap'
 
-//testing page
-
 export default function Home() {
   const diamondRef = useRef<HTMLDivElement>(null)
   const headingRef = useRef<HTMLHeadingElement>(null)
