@@ -9,36 +9,66 @@ import { Aperture, Image } from 'lucide-react'
 export default function Results() {
   const router = useRouter()
   const [showModal, setShowModal] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const resizeImage = (file: File, maxWidth = 1024): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = document.createElement('img')
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          let width = img.width
+          let height = img.height
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width
+            width = maxWidth
+          }
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext('2d')
+          if (!ctx) { reject('Canvas context failed'); return }
+          ctx.drawImage(img, 0, 0, width, height)
+          resolve(canvas.toDataURL('image/jpeg', 0.8))
+        }
+        img.onerror = () => reject('Failed to load image')
+        img.src = reader.result as string
+      }
+      reader.onerror = () => reject('Failed to read file')
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    const reader = new FileReader()
-    reader.onloadend = async () => {
-      const imageData = reader.result as string
+    setIsUploading(true)
+    try {
+      const imageData = await resizeImage(file)
       localStorage.setItem('skinstric_capture', imageData)
 
       const base64String = imageData.split(',')[1]
-      try {
-        const res = await fetch(
-          'https://us-central1-api-skinstric-ai.cloudfunctions.net/skinstricPhaseTwo',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: base64String }),
-          }
-        )
-        const data = await res.json()
-        console.log('Full API Response:', data)
-        localStorage.setItem('skinstric_analysis', JSON.stringify(data))
-        router.push('/select')
-      } catch (err) {
-        console.error('Phase Two API error:', err)
-      }
+      const res = await fetch(
+        'https://us-central1-api-skinstric-ai.cloudfunctions.net/skinstricPhaseTwo',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: base64String }),
+        }
+      )
+      const data = await res.json()
+      console.log('Full API Response:', data)
+      localStorage.setItem('skinstric_analysis', JSON.stringify(data))
+      router.push('/select')
+    } catch (err) {
+      console.error('Phase Two API error:', err)
+      setIsUploading(false)
     }
-    reader.readAsDataURL(file)
+
+    // Reset input so the same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   // Left card spinning squares
@@ -194,6 +224,16 @@ export default function Results() {
           </div>
         </div>
       </main>
+
+      {/* Upload loading overlay */}
+      {isUploading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-white px-8 py-6 flex flex-col items-center gap-4">
+            <div className="w-10 h-10 border-2 border-neutral-400 border-t-neutral-900 rounded-full animate-spin" />
+            <p className="text-xs uppercase tracking-widest font-medium">Analyzing image...</p>
+          </div>
+        </div>
+      )}
 
       {/* Hidden file input for gallery upload */}
       <input
