@@ -113,6 +113,7 @@ export default function Home() {
           <Link
             ref={leftBtnRef}
             href="/testing"
+            onClick={(e) => e.preventDefault()}
             className="pointer-events-auto flex items-center gap-3 cursor-pointer transition-opacity duration-300 hover:opacity-70 relative top-[2%]"
           >
             <img src="/left.svg" alt="" className="w-[47px] h-[47px]" />

@@ -15,7 +15,7 @@ export default function Select() {
   }
 
   return (
-    <div className="relative h-screen w-full flex flex-col">
+    <div className="relative h-screen w-full flex flex-col overflow-hidden">
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-3">
         <div className="flex items-center gap-3">
@@ -42,13 +42,14 @@ export default function Select() {
 
       {/* Main content — diamond layout */}
       <main className="flex-1 flex items-center justify-center relative">
-        {/* Dotted diamond outline — expands outward on hover */}
-        <div
-          className={`absolute border-[3px] border-dotted border-neutral-300 transition-all duration-500 ease-out ${
-            hovered ? 'w-[520px] h-[520px] opacity-100' : 'w-[340px] h-[340px] opacity-0'
-          }`}
-          style={{ transform: 'rotate(45deg)' }}
-        />
+        {/* Dotted diamond outline — expands outward on hover, re-animates per box */}
+        {hovered && (
+          <div
+            key={hovered}
+            className="absolute border-[3px] border-dotted border-neutral-300 animate-[expandDiamond_0.5s_ease-out_forwards]"
+            style={{ transform: 'rotate(45deg)' }}
+          />
+        )}
 
         {/* 2x2 grid rotated 45deg to form diamond */}
         <div

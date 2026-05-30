@@ -156,7 +156,7 @@ export default function Testing() {
   const subtitleText = step === 'name' ? 'To Start Analysis' : 'To Start Analysis'
 
   return (
-    <div className="relative h-screen w-full flex flex-col">
+    <div className="relative h-screen w-full flex flex-col overflow-hidden">
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-3">
         <div className="flex items-center gap-3">
