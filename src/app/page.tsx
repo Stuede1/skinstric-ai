@@ -4,8 +4,6 @@ import { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import gsap from 'gsap'
 
-//testing page
-
 export default function Home() {
   const diamondRef = useRef<HTMLDivElement>(null)
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -93,12 +91,9 @@ export default function Home() {
           </Link>
           <span className="text-[8px] uppercase tracking-widest text-neutral-500">[ Intro ]</span>
         </div>
-        <Link
-          href="/testing"
-          className="bg-neutral-900 text-white text-[8px] uppercase tracking-widest font-medium px-3 py-1.5 hover:bg-neutral-700 transition-colors duration-300"
-        >
+        <span className="bg-neutral-900 text-white text-[8px] uppercase tracking-widest font-medium px-3 py-1.5">
           Enter Code
-        </Link>
+        </span>
       </header>
 
       {/* Main content */}
@@ -116,6 +111,7 @@ export default function Home() {
           <Link
             ref={leftBtnRef}
             href="/testing"
+            onClick={(e) => e.preventDefault()}
             className="pointer-events-auto flex items-center gap-3 cursor-pointer transition-opacity duration-300 hover:opacity-70 relative top-[2%]"
           >
             <img src="/left.svg" alt="" className="w-[47px] h-[47px]" />

@@ -9,5 +9,18 @@ body {
   background: #ffffff;
   color: #1a1a1a;
   font-family: var(--font-sans), sans-serif;
-  overflow: hidden;
+  overflow: auto;
+}
+
+@keyframes expandDiamond {
+  from {
+    width: 340px;
+    height: 340px;
+    opacity: 0;
+  }
+  to {
+    width: 520px;
+    height: 520px;
+    opacity: 1;
+  }
 }

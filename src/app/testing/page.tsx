@@ -81,7 +81,7 @@ export default function Testing() {
     if (step === 'name') {
       // Move to location step
       setStep('location')
-      setIsEditing(false)
+      setIsEditing(true)
     } else {
       // Both fields filled — submit to API
       setIsSubmitting(true)
@@ -105,7 +105,7 @@ export default function Testing() {
         if (!res.ok) throw new Error('API request failed')
 
         const data = await res.json()
-        console.log('API response:', data)
+        console.log('Full API Response:', data)
 
         // Show success screen
         setStep('success')
@@ -152,11 +152,11 @@ export default function Testing() {
     }
   }
 
-  const placeholderText = step === 'name' ? 'Introduce Yourself' : 'Where are you from?'
-  const subtitleText = step === 'name' ? 'To Start Analysis' : 'To Start Analysis'
+  const placeholderText = step === 'name' ? 'Introduce Yourself' : 'your city name'
+  const subtitleText = 'To Start Analysis'
 
   return (
-    <div className="relative h-screen w-full flex flex-col">
+    <div className="relative h-screen w-full flex flex-col overflow-hidden">
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-3">
         <div className="flex items-center gap-3">
@@ -165,12 +165,9 @@ export default function Testing() {
           </Link>
           <span className="text-[8px] uppercase tracking-widest text-neutral-500">[ Intro ]</span>
         </div>
-        <Link
-          href="/testing"
-          className="bg-neutral-900 text-white text-[8px] uppercase tracking-widest font-medium px-3 py-1.5 hover:bg-neutral-700 transition-colors duration-300"
-        >
+        <span className="bg-neutral-900 text-white text-[8px] uppercase tracking-widest font-medium px-3 py-1.5">
           Enter Code
-        </Link>
+        </span>
       </header>
 
       {/* Subtitle */}
@@ -257,8 +254,8 @@ export default function Testing() {
         </button>
       </div>
 
-      {/* Proceed button — bottom right */}
-      {step === 'success' ? (
+      {/* Proceed button — bottom right (only visible on success) */}
+      {step === 'success' && (
         <div className="absolute bottom-6 right-6">
           <button
             ref={proceedBtnRef}
@@ -266,19 +263,6 @@ export default function Testing() {
             className="flex items-center gap-3 cursor-pointer opacity-0"
           >
             <span className="text-[10px] uppercase tracking-widest font-medium">Proceed</span>
-            <img src="/right.svg" alt="" className="w-[47px] h-[47px]" />
-          </button>
-        </div>
-      ) : (
-        <div className="absolute bottom-6 right-6">
-          <button
-            onClick={handleProceed}
-            disabled={isSubmitting}
-            className="flex items-center gap-3 cursor-pointer disabled:opacity-50"
-          >
-            <span className="text-[10px] uppercase tracking-widest font-medium">
-              {isSubmitting ? 'Submitting...' : 'Proceed'}
-            </span>
             <img src="/right.svg" alt="" className="w-[47px] h-[47px]" />
           </button>
         </div>
