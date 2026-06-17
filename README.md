@@ -124,4 +124,4 @@ src/
 
 ## Author
 
-**Cole Stuedeman** — [GitHub](https://github.com/Stuede1) · [LinkedIn](https://www.linkedin.com/in/cole-stuedeman) · [Portfolio](https://skinstric-cole.vercel.app)
+**Cole Stuedeman** — [GitHub](https://github.com/Stuede1) · [LinkedIn](https://www.linkedin.com/in/cole-stuedeman) · [Portfolio](https://colestuedeman.dev)
