@@ -122,6 +122,33 @@ src/
 
 ---
 
+## Testing
+
+The project includes a comprehensive test suite built with **Jest** and **React Testing Library**, covering three layers:
+
+| Layer | File | Tests |
+|---|---|---|
+| Unit | `src/utils/validation.test.ts` | 19 |
+| Unit | `src/utils/analysis.test.ts` | 11 |
+| Integration | `src/app/testing/Testing.test.tsx` | 14 |
+| Component | `src/app/summary/Summary.test.tsx` | 9 |
+
+### Run Tests
+
+```bash
+npm test
+```
+
+### What's Covered
+
+- **Input validation logic** — required fields, number rejection, special character rejection, minimum length, whitespace trimming, allowed punctuation (hyphens, apostrophes, commas, periods)
+- **Data transformation** — `capitalize` word formatting, `sortedEntries` descending confidence sort, edge cases (empty input, ties, decimal precision)
+- **Multi-step form flow** — name → location step transitions, Enter key submission, back navigation between steps, validation error display per step
+- **Async API submission** — mocked `fetch` to Firebase Cloud Function, localStorage writes, correct POST payload, error handling for network failures and non-ok responses
+- **Data-driven UI** — localStorage-driven render, redirect on missing data, category switching (race/age/gender), donut chart percentage updates, score table selection
+
+---
+
 ## Author
 
 **Cole Stuedeman** — [GitHub](https://github.com/Stuede1) · [LinkedIn](https://www.linkedin.com/in/cole-stuedeman) · [Portfolio](https://colestuedeman.dev)

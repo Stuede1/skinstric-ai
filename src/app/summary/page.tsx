@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { capitalize, sortedEntries } from '@/utils/analysis'
 
 type Category = 'race' | 'age' | 'gender'
 
@@ -10,17 +11,6 @@ interface AnalysisData {
   race: Record<string, number>
   age: Record<string, number>
   gender: Record<string, number>
-}
-
-function capitalize(s: string) {
-  return s
-    .split(' ')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
-}
-
-function sortedEntries(obj: Record<string, number>) {
-  return Object.entries(obj).sort(([, a], [, b]) => b - a)
 }
 
 export default function Summary() {
